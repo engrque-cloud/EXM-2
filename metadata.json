@@ -1,0 +1,6 @@
+{
+  "name": "Exam Management System",
+  "description": "Comprehensive institutional examination platform with automated date sheet scheduling, 10-day paper deadline tracking, QA auditing, duty roster generation, and grade publishing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
