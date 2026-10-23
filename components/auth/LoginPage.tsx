@@ -125,9 +125,12 @@ export function LoginPage() {
       <div className="max-w-5xl mx-auto w-full flex items-center justify-between pb-4">
         <div className="flex items-center gap-3">
           <img
-            src="/src/assets/images/exam_system_logo_1792130817114.jpg"
+            src={branding.logoUrl || '/src/assets/images/exam_system_logo_1792130817114.jpg'}
             alt="University Logo"
-            className="w-12 h-12 rounded-full object-contain border border-emerald-300 shadow-2xs bg-white"
+            width={48}
+            height={48}
+            style={{ width: '48px', height: '48px', maxWidth: '48px', maxHeight: '48px', objectFit: 'contain' }}
+            className="w-12 h-12 rounded-full object-contain border border-emerald-300 shadow-2xs bg-white shrink-0"
           />
           <div>
             <h1 className="text-base font-extrabold text-neutral-900 tracking-tight">

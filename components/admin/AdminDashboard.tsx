@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useExam } from '@/lib/exam-context';
 import { computeDaysDifference } from '@/lib/exam-storage';
 import {
@@ -13,6 +13,7 @@ import {
   Plus,
   Check,
   X,
+  Info,
   Search,
   Filter,
   ShieldCheck,
@@ -50,6 +51,7 @@ import {
 import { DutyRosterSection } from './DutyRosterSection';
 import { SystemActivityLogComponent } from './SystemActivityLog';
 import { AcademicManagementSection } from './AcademicManagementSection';
+import { InstitutionalBrandingSection } from './InstitutionalBrandingSection';
 import { ActivityFeed } from '@/components/common/ActivityFeed';
 import {
   DashboardPrintHeader,
@@ -113,6 +115,7 @@ export function AdminDashboard() {
     deleteArchiveRecord,
     branding,
     updateBranding,
+    logActivity,
     activityLogs,
     resetToAdminOnlyZeroEntries,
     resetAllData,
@@ -214,37 +217,6 @@ export function AdminDashboard() {
       courses
     );
   }, [formTeacherId, formExamDate, formStartTime, formEndTime, dutyRoster, dateSheet, courses]);
-
-  // Branding & Signatories Form State
-  const [editCollegeName, setEditCollegeName] = useState(branding.collegeName);
-  const [editSubTitle, setEditSubTitle] = useState(branding.subTitle);
-  const [editLogoUrl, setEditLogoUrl] = useState(branding.logoUrl || '');
-  const [brandingSaveSuccess, setBrandingSaveSuccess] = useState(false);
-
-  // Transcript Signatories & Official Seal State
-  const [editDeputyName, setEditDeputyName] = useState(
-    branding.deputyRegistrarName || 'Dr. Richard Vance, Ph.D.'
-  );
-  const [editDeputyTitle, setEditDeputyTitle] = useState(
-    branding.deputyRegistrarTitle || 'Deputy Registrar (Academics)'
-  );
-  const [editControllerName, setEditControllerName] = useState(
-    branding.controllerName || 'Prof. Malcolm Thorne'
-  );
-  const [editControllerTitle, setEditControllerTitle] = useState(
-    branding.controllerTitle || 'Controller of Examinations'
-  );
-  const [editSealText, setEditSealText] = useState(branding.sealText || 'OFFICIAL SEAL');
-  const [editSealSubText, setEditSealSubText] = useState(branding.sealSubText || 'Exam Controller');
-  const [editSealType, setEditSealType] = useState<'EMBOSSED' | 'EMBLEM' | 'ACADEMIC' | 'CUSTOM_IMAGE'>(
-    branding.sealType || 'EMBOSSED'
-  );
-  const [editSealImageUrl, setEditSealImageUrl] = useState(
-    branding.sealImageUrl || '/src/assets/images/exam_system_logo_1792130817114.jpg'
-  );
-  const [editSealColor, setEditSealColor] = useState(branding.sealColor || '#064e3b');
-
-
 
   // Available courses filtered by selected department and semester
   const availableCourses = courses.filter(
@@ -552,75 +524,6 @@ export function AdminDashboard() {
     }, 2000);
   };
 
-  // Save branding & signatories settings
-  const handleSaveBranding = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateBranding({
-      collegeName: editCollegeName,
-      subTitle: editSubTitle,
-      logoUrl: editLogoUrl,
-      deputyRegistrarName: editDeputyName,
-      deputyRegistrarTitle: editDeputyTitle,
-      controllerName: editControllerName,
-      controllerTitle: editControllerTitle,
-      sealText: editSealText,
-      sealSubText: editSealSubText,
-      sealType: editSealType,
-      sealImageUrl: editSealImageUrl,
-      sealColor: editSealColor,
-    });
-    setBrandingSaveSuccess(true);
-    setTimeout(() => setBrandingSaveSuccess(false), 2500);
-  };
-
-  // Image file upload handler for logo
-  const handleLogoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          setEditLogoUrl(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // Image file upload handler for seal
-  const handleSealUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          setEditSealImageUrl(reader.result);
-          setEditSealType('CUSTOM_IMAGE');
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // Preset logo emblems
-  const presetLogos = [
-    {
-      name: 'Exam Management System Emblem (Vector)',
-      url: '/src/assets/images/exam_system_logo_1792130817114.jpg',
-    },
-    {
-      name: 'Academic Laurel Crest',
-      url: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=150&auto=format&fit=crop&q=80',
-    },
-    {
-      name: 'Ivy Heritage Shield',
-      url: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=150&auto=format&fit=crop&q=80',
-    },
-    {
-      name: 'Modern University Seal',
-      url: 'https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=150&auto=format&fit=crop&q=80',
-    },
-  ];
 
   // Filtered date sheet entries
   const filteredDateSheet = dateSheet.filter((ds) => {
@@ -747,6 +650,9 @@ export function AdminDashboard() {
               <img
                 src={branding.logoUrl}
                 alt="College Logo"
+                width={48}
+                height={48}
+                style={{ width: '48px', height: '48px', maxWidth: '48px', maxHeight: '48px', objectFit: 'cover' }}
                 className="w-12 h-12 rounded-lg object-cover border border-emerald-200 shadow-2xs shrink-0"
               />
             ) : (
@@ -777,10 +683,14 @@ export function AdminDashboard() {
 
             <button
               onClick={() => setActiveTab('BRANDING')}
-              className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
+              className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer border ${
+                activeTab === 'BRANDING'
+                  ? 'bg-emerald-800 text-white border-emerald-900'
+                  : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-emerald-200'
+              }`}
             >
               <Palette className="w-3.5 h-3.5 text-emerald-700" />
-              College Branding & Logo
+              Configure College Name &amp; Subtitle
             </button>
             <button
               onClick={() => {
@@ -1145,479 +1055,13 @@ export function AdminDashboard() {
 
       {/* TAB: COLLEGE BRANDING & LOGO SETTINGS */}
       {activeTab === 'BRANDING' && (
-        <div className="bg-white rounded-xl border border-emerald-200 p-6 space-y-6 animate-in fade-in duration-200">
-          <div className="pb-4 border-b border-emerald-100 flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-neutral-900 flex items-center gap-2">
-                <Palette className="w-4 h-4 text-emerald-800" />
-                Institutional Identity & College Logo
-              </h3>
-              <p className="text-xs text-neutral-500 mt-0.5">
-                Customize your college name and emblem logo. This updates the top navbar, examination hall admit slips, transcripts, and headers.
-              </p>
-            </div>
-          </div>
-
-          {brandingSaveSuccess && (
-            <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-semibold flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              Institutional branding updated successfully across the entire system!
-            </div>
-          )}
-
-          <form onSubmit={handleSaveBranding} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* College Name & Subtitle inputs */}
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs font-semibold text-neutral-700 block mb-1">
-                    College / University Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editCollegeName}
-                    onChange={(e) => setEditCollegeName(e.target.value)}
-                    placeholder="e.g. Apex Green Valley College"
-                    className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-md focus:ring-1 focus:ring-emerald-700 font-medium"
-                  />
-                  <span className="text-[11px] text-neutral-400 mt-0.5 block">
-                    Displayed on the global navigation, student slips, and reports.
-                  </span>
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold text-neutral-700 block mb-1">
-                    Department Subtitle / Council Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editSubTitle}
-                    onChange={(e) => setEditSubTitle(e.target.value)}
-                    placeholder="e.g. Office of the Controller of Examinations"
-                    className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-md focus:ring-1 focus:ring-emerald-700"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold text-neutral-700 block mb-1">
-                    Custom Logo Image URL (or upload below)
-                  </label>
-                  <input
-                    type="text"
-                    value={editLogoUrl}
-                    onChange={(e) => setEditLogoUrl(e.target.value)}
-                    placeholder="https://example.com/college-logo.png"
-                    className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-md focus:ring-1 focus:ring-emerald-700 font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold text-neutral-700 block mb-1">
-                    Upload Local Logo File
-                  </label>
-                  <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-emerald-300 rounded-md bg-emerald-50/50 hover:bg-emerald-50 cursor-pointer text-xs text-emerald-800 transition-colors">
-                    <UploadCloud className="w-4 h-4 text-emerald-700" />
-                    <span>Choose an image from your device...</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleLogoFileUpload}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              {/* Live Preview Box */}
-              <div className="p-5 bg-emerald-50/30 border border-emerald-200 rounded-xl space-y-4">
-                <span className="text-xs font-bold text-emerald-900 block">
-                  Live Branding Preview:
-                </span>
-
-                {/* Navbar Card Preview */}
-                <div className="p-3 bg-white border border-emerald-200 rounded-lg shadow-2xs flex items-center gap-3">
-                  {editLogoUrl ? (
-                    <img
-                      src={editLogoUrl}
-                      alt="Logo Preview"
-                      className="w-10 h-10 rounded-md object-cover border border-emerald-200"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-md bg-emerald-800 text-white font-bold flex items-center justify-center text-sm">
-                      {editCollegeName.slice(0, 2).toUpperCase() || 'CU'}
-                    </div>
-                  )}
-                  <div>
-                    <div className="text-xs font-bold text-neutral-900">{editCollegeName || 'College Name'}</div>
-                    <div className="text-[11px] text-emerald-700">{editSubTitle || 'Examination Directorate'}</div>
-                  </div>
-                </div>
-
-                {/* Preset Options */}
-                <div>
-                  <span className="text-[11px] font-semibold text-neutral-600 block mb-2">
-                    Or select a curated academic crest preset:
-                  </span>
-                  <div className="grid grid-cols-3 gap-2">
-                    {presetLogos.map((preset) => (
-                      <button
-                        key={preset.name}
-                        type="button"
-                        onClick={() => setEditLogoUrl(preset.url)}
-                        className={`p-2 rounded-lg border text-left text-[11px] transition-colors flex flex-col items-center gap-1.5 ${
-                          editLogoUrl === preset.url
-                            ? 'bg-emerald-100 border-emerald-500 text-emerald-950 font-bold'
-                            : 'bg-white border-neutral-200 text-neutral-600 hover:border-emerald-300'
-                        }`}
-                      >
-                        <img src={preset.url} alt={preset.name} className="w-8 h-8 rounded object-cover" />
-                        <span className="text-center line-clamp-1">{preset.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {editLogoUrl && (
-                  <button
-                    type="button"
-                    onClick={() => setEditLogoUrl('')}
-                    className="text-[11px] text-red-600 hover:underline block"
-                  >
-                    Clear custom logo (use green monogram)
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Section 2: Official Transcript Signatories & Document Seal */}
-            <div className="pt-6 border-t border-emerald-100 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wide flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-emerald-800" />
-                    Official Transcript Signatories &amp; Document Seal
-                  </h4>
-                  <p className="text-xs text-neutral-500 mt-0.5">
-                    Configure the official signatories and university stamp that appear on all generated academic transcripts.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditDeputyName('Dr. Richard Vance, Ph.D.');
-                    setEditDeputyTitle('Deputy Registrar (Academics)');
-                    setEditControllerName('Prof. Malcolm Thorne');
-                    setEditControllerTitle('Controller of Examinations');
-                    setEditSealText('OFFICIAL SEAL');
-                    setEditSealSubText('Exam Controller');
-                    setEditSealType('EMBOSSED');
-                    setEditSealImageUrl('/src/assets/images/exam_system_logo_1792130817114.jpg');
-                    setEditSealColor('#064e3b');
-                  }}
-                  className="px-2.5 py-1 text-[11px] font-semibold text-neutral-600 hover:text-neutral-900 bg-white border border-neutral-300 rounded hover:bg-neutral-50 flex items-center gap-1 shadow-2xs transition-colors cursor-pointer"
-                >
-                  <RotateCcw className="w-3 h-3 text-neutral-500" />
-                  Reset Signatories to Defaults
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* 1. Deputy Registrar Configuration */}
-                <div className="p-4 bg-white rounded-xl border border-emerald-200 space-y-3 shadow-2xs">
-                  <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
-                    <span className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
-                      <PenTool className="w-3.5 h-3.5 text-emerald-700" />
-                      1. Deputy Registrar
-                    </span>
-                    <span className="text-[10px] text-neutral-400 font-mono">Signatory #1</span>
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-semibold text-neutral-700 block mb-1">
-                      Full Name &amp; Academic Post-nominal
-                    </label>
-                    <input
-                      type="text"
-                      value={editDeputyName}
-                      onChange={(e) => setEditDeputyName(e.target.value)}
-                      placeholder="e.g. Dr. Richard Vance, Ph.D."
-                      className="w-full px-3 py-1.5 text-xs border border-neutral-300 rounded-md focus:ring-1 focus:ring-emerald-700 font-serif font-bold text-neutral-900"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-semibold text-neutral-700 block mb-1">
-                      Designation / Department Title
-                    </label>
-                    <input
-                      type="text"
-                      value={editDeputyTitle}
-                      onChange={(e) => setEditDeputyTitle(e.target.value)}
-                      placeholder="e.g. Deputy Registrar (Academics)"
-                      className="w-full px-3 py-1.5 text-xs border border-neutral-300 rounded-md focus:ring-1 focus:ring-emerald-700 text-neutral-800"
-                    />
-                  </div>
-                </div>
-
-                {/* 2. Controller of Examinations Configuration */}
-                <div className="p-4 bg-white rounded-xl border border-emerald-200 space-y-3 shadow-2xs">
-                  <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
-                    <span className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
-                      <PenTool className="w-3.5 h-3.5 text-emerald-700" />
-                      2. Controller of Examinations
-                    </span>
-                    <span className="text-[10px] text-neutral-400 font-mono">Signatory #2</span>
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-semibold text-neutral-700 block mb-1">
-                      Controller Full Name
-                    </label>
-                    <input
-                      type="text"
-                      value={editControllerName}
-                      onChange={(e) => setEditControllerName(e.target.value)}
-                      placeholder="e.g. Prof. Malcolm Thorne"
-                      className="w-full px-3 py-1.5 text-xs border border-neutral-300 rounded-md focus:ring-1 focus:ring-emerald-700 font-serif font-bold text-neutral-900"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-semibold text-neutral-700 block mb-1">
-                      Designation / Directorate Title
-                    </label>
-                    <input
-                      type="text"
-                      value={editControllerTitle}
-                      onChange={(e) => setEditControllerTitle(e.target.value)}
-                      placeholder="e.g. Controller of Examinations"
-                      className="w-full px-3 py-1.5 text-xs border border-neutral-300 rounded-md focus:ring-1 focus:ring-emerald-700 text-neutral-800"
-                    />
-                  </div>
-                </div>
-
-                {/* 3. Official University Seal Configuration */}
-                <div className="p-4 bg-white rounded-xl border border-emerald-200 space-y-3 shadow-2xs">
-                  <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
-                    <span className="text-xs font-bold text-neutral-900 flex items-center gap-1.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-                      3. Official Document Seal
-                    </span>
-                    <span className="text-[10px] text-neutral-400 font-mono">Center Stamp</span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-[10px] font-semibold text-neutral-700 block mb-1">
-                        Seal Main Text
-                      </label>
-                      <input
-                        type="text"
-                        value={editSealText}
-                        onChange={(e) => setEditSealText(e.target.value)}
-                        placeholder="OFFICIAL SEAL"
-                        className="w-full px-2.5 py-1 text-xs border border-neutral-300 rounded uppercase font-bold text-neutral-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-semibold text-neutral-700 block mb-1">
-                        Seal Subtitle
-                      </label>
-                      <input
-                        type="text"
-                        value={editSealSubText}
-                        onChange={(e) => setEditSealSubText(e.target.value)}
-                        placeholder="Exam Controller"
-                        className="w-full px-2.5 py-1 text-xs border border-neutral-300 rounded text-neutral-800"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] font-semibold text-neutral-700 block mb-1">
-                      Seal Style
-                    </label>
-                    <div className="grid grid-cols-3 gap-1.5 text-[10px]">
-                      <button
-                        type="button"
-                        onClick={() => setEditSealType('EMBOSSED')}
-                        className={`p-1.5 rounded border text-center font-medium transition-colors cursor-pointer ${
-                          editSealType === 'EMBOSSED'
-                            ? 'bg-emerald-100 border-emerald-600 text-emerald-950 font-bold'
-                            : 'bg-neutral-50 border-neutral-200 text-neutral-600 hover:bg-neutral-100'
-                        }`}
-                      >
-                        Shield Seal
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditSealType('EMBLEM');
-                          setEditSealImageUrl('/src/assets/images/exam_system_logo_1792130817114.jpg');
-                        }}
-                        className={`p-1.5 rounded border text-center font-medium transition-colors cursor-pointer ${
-                          editSealType === 'EMBLEM'
-                            ? 'bg-emerald-100 border-emerald-600 text-emerald-950 font-bold'
-                            : 'bg-neutral-50 border-neutral-200 text-neutral-600 hover:bg-neutral-100'
-                        }`}
-                      >
-                        Emblem Crest
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditSealType('ACADEMIC')}
-                        className={`p-1.5 rounded border text-center font-medium transition-colors cursor-pointer ${
-                          editSealType === 'ACADEMIC'
-                            ? 'bg-emerald-100 border-emerald-600 text-emerald-950 font-bold'
-                            : 'bg-neutral-50 border-neutral-200 text-neutral-600 hover:bg-neutral-100'
-                        }`}
-                      >
-                        Academic
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Ink Color Selector */}
-                  <div>
-                    <label className="text-[10px] font-semibold text-neutral-700 block mb-1">
-                      Seal Ink Color
-                    </label>
-                    <div className="flex items-center gap-2">
-                      {[
-                        { color: '#064e3b', label: 'Emerald' },
-                        { color: '#1e3a8a', label: 'Navy' },
-                        { color: '#881337', label: 'Crimson' },
-                        { color: '#b45309', label: 'Gold' },
-                        { color: '#171717', label: 'Black' },
-                      ].map((c) => (
-                        <button
-                          key={c.color}
-                          type="button"
-                          onClick={() => setEditSealColor(c.color)}
-                          className={`w-6 h-6 rounded-full border-2 transition-transform cursor-pointer ${
-                            editSealColor === c.color ? 'scale-110 border-neutral-900 shadow-xs' : 'border-white'
-                          }`}
-                          style={{ backgroundColor: c.color }}
-                          title={c.label}
-                        />
-                      ))}
-                      <input
-                        type="text"
-                        value={editSealColor}
-                        onChange={(e) => setEditSealColor(e.target.value)}
-                        className="w-20 px-2 py-0.5 text-[10px] font-mono border border-neutral-300 rounded"
-                        placeholder="#064e3b"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Custom Seal File Upload */}
-                  <div>
-                    <label className="text-[10px] font-semibold text-neutral-700 block mb-1">
-                      Upload Custom Stamp / Seal Image
-                    </label>
-                    <label className="flex items-center gap-1.5 px-2 py-1.5 border border-dashed border-neutral-300 rounded bg-neutral-50 hover:bg-emerald-50 text-[10px] text-neutral-600 cursor-pointer transition-colors">
-                      <UploadCloud className="w-3.5 h-3.5 text-emerald-700" />
-                      <span>Upload custom seal graphic...</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleSealUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              {/* Live Signatory Footer Preview Box */}
-              <div className="p-4 bg-emerald-50/40 rounded-xl border border-emerald-200 space-y-2">
-                <span className="text-xs font-bold text-emerald-900 block">
-                  Live Transcript Signatures &amp; Seal Preview:
-                </span>
-                <div className="p-6 bg-white border border-neutral-200 rounded-lg shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-6 text-xs">
-                  <div className="text-center sm:text-left space-y-0.5">
-                    <div className="font-serif italic text-base text-emerald-950 font-bold border-b border-neutral-400 pb-0.5 px-2 inline-block">
-                      {editDeputyName}
-                    </div>
-                    <div className="font-bold text-neutral-900 text-xs mt-1">{editDeputyTitle}</div>
-                    <div className="text-[10px] text-neutral-500">{editCollegeName}</div>
-                  </div>
-
-                  {/* Stamp Graphic */}
-                  <div className="shrink-0">
-                    {editSealType === 'EMBLEM' || (editSealType === 'CUSTOM_IMAGE' && editSealImageUrl) ? (
-                      <div
-                        className="w-20 h-20 rounded-full border-2 border-dashed flex flex-col items-center justify-center text-center p-1 relative overflow-hidden bg-white shadow-2xs"
-                        style={{ borderColor: editSealColor }}
-                      >
-                        <img
-                          src={editSealImageUrl || '/src/assets/images/exam_system_logo_1792130817114.jpg'}
-                          alt="Seal Preview"
-                          referrerPolicy="no-referrer"
-                          className="w-12 h-12 rounded-full object-contain"
-                        />
-                        <div
-                          className="text-[6.5px] font-black uppercase tracking-wider leading-tight truncate px-0.5 mt-0.5"
-                          style={{ color: editSealColor }}
-                        >
-                          {editSealText}
-                        </div>
-                      </div>
-                    ) : editSealType === 'ACADEMIC' ? (
-                      <div
-                        className="w-20 h-20 rounded-full border-2 border-dashed flex flex-col items-center justify-center text-center p-1.5 bg-emerald-50/40"
-                        style={{ borderColor: editSealColor, color: editSealColor }}
-                      >
-                        <GraduationCap className="w-5 h-5 mb-0.5" style={{ color: editSealColor }} />
-                        <div className="text-[7px] font-black uppercase tracking-wider leading-tight">
-                          {editSealText}
-                        </div>
-                        <div className="text-[6.5px] text-neutral-600 font-mono">
-                          {editSealSubText}
-                        </div>
-                      </div>
-                    ) : (
-                      <div
-                        className="w-20 h-20 rounded-full border-2 border-dashed flex flex-col items-center justify-center text-center p-1.5 bg-emerald-50/40"
-                        style={{ borderColor: editSealColor, color: editSealColor }}
-                      >
-                        <ShieldCheck className="w-5 h-5 mb-0.5" style={{ color: editSealColor }} />
-                        <div className="text-[7px] font-black uppercase tracking-wider leading-tight">
-                          {editSealText}
-                        </div>
-                        <div className="text-[6.5px] text-neutral-600 font-mono">
-                          {editSealSubText}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="text-center sm:text-right space-y-0.5">
-                    <div className="font-serif italic text-base text-emerald-950 font-bold border-b border-neutral-400 pb-0.5 px-2 inline-block">
-                      {editControllerName}
-                    </div>
-                    <div className="font-bold text-neutral-900 text-xs mt-1">{editControllerTitle}</div>
-                    <div className="text-[10px] text-emerald-800 font-semibold">{editCollegeName}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-emerald-100 flex items-center justify-end">
-              <button
-                type="submit"
-                className="px-5 py-2 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold rounded-lg transition-colors shadow-2xs flex items-center gap-1.5"
-              >
-                <Check className="w-4 h-4" />
-                Save & Apply College Branding
-              </button>
-            </div>
-          </form>
-        </div>
+        <InstitutionalBrandingSection
+          key={`${branding.collegeName}-${branding.subTitle}-${branding.logoUrl || ""}`}
+          branding={branding}
+          updateBranding={updateBranding}
+          logActivity={logActivity}
+          simulatedDate={simulatedDate}
+        />
       )}
 
       {/* TAB 1: DATE SHEET MANAGEMENT */}

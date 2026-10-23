@@ -1,34 +1,83 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* Screen default for print-only elements */
 .print-only {
   display: none !important;
 }
 
+.print-only-flex {
+  display: none !important;
+}
+
 @media print {
+  /* Set pristine background, typography, and viewport sizing */
+  html,
   body {
-    background: white !important;
-    color: black !important;
+    background: #ffffff !important;
+    color: #000000 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 11pt !important;
   }
 
-  header,
+  /* Explicitly hide page footers, top headers, navigation bars, sidebars, floating widgets, and non-printable elements */
+  header:not(.print-header),
   nav,
   aside,
   footer:not(.print-footer),
-  .no-print {
+  [role="navigation"],
+  [role="banner"],
+  [role="contentinfo"],
+  .no-print,
+  .print-hidden,
+  .print-hide,
+  .top-navbar,
+  .site-footer,
+  .app-footer,
+  .floating-action-button,
+  .date-simulator-trigger,
+  button:not(.print-include) {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
   }
 
+  /* Render print-only elements in printable documents */
   .print-only {
     display: block !important;
+    visibility: visible !important;
   }
 
   .print-only-flex {
     display: flex !important;
+    visibility: visible !important;
   }
 
+  .print-footer,
+  .official-document-footer {
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  .print-header {
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  /* Clean print-area layout resets */
   .print-area {
     display: block !important;
     position: static !important;
@@ -37,11 +86,15 @@
     padding: 0 !important;
     box-shadow: none !important;
     border: none !important;
+    background: transparent !important;
   }
 
-  /* Forced clean page-break rules for PDF export and tabular date sheets */
+  /* Tables formatting & header repetition across pages */
   table {
     page-break-after: auto;
+    break-after: auto;
+    width: 100% !important;
+    border-collapse: collapse !important;
   }
 
   thead {
@@ -52,26 +105,56 @@
     display: table-footer-group !important;
   }
 
-  tr,
+  /* Comprehensive page-break-avoid rules to prevent content splitting across PDF pages */
+  .page-break-avoid,
+  .avoid-page-break,
   .print-avoid-break,
-  .date-sheet-row {
+  .break-inside-avoid,
+  .print-card,
+  .print-section,
+  .exam-card,
+  .schedule-card,
+  .date-sheet-row,
+  .transcript-section,
+  .signature-block,
+  .particulars-strip,
+  .official-seal-box,
+  .table-row-group,
+  tr,
+  th,
+  td,
+  figure,
+  blockquote {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    break-inside: avoid-page !important;
   }
 
-  .print-avoid-break {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+  /* Prevent headings from being orphaned at the bottom of a page */
+  h1, h2, h3, h4, h5, h6,
+  .print-heading {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    break-after: avoid-page !important;
   }
 
-  .print-page-break {
+  /* Explicit page break classes */
+  .print-page-break,
+  .page-break-always {
     page-break-after: always !important;
     break-after: page !important;
   }
 
+  .print-page-break-before,
+  .page-break-before-always {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+
+  /* Standard margin for PDF export */
   @page {
     size: auto;
-    margin: 8mm 10mm;
+    margin: 10mm 12mm;
   }
 }
 

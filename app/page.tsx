@@ -50,7 +50,7 @@ function ExamAppContent() {
   return (
     <div className="min-h-screen bg-[#F8FAF7] text-neutral-900 flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900">
       {/* Top Navigation - excluded from PDF exports */}
-      <div className="no-print">
+      <div className="no-print print-hidden">
         <TopNavbar
           onOpenSimulator={() => setIsSimulatorOpen(true)}
           onOpenRegister={() => setIsRegisterOpen(true)}
@@ -66,14 +66,17 @@ function ExamAppContent() {
         {currentUser.role === 'STUDENT' && <StudentPortal />}
       </main>
 
-      {/* Clean Institutional Footer with College Branding & Exam Management System Emblem - hidden during print */}
-      <footer className="border-t border-emerald-200/80 bg-white py-6 mt-12 text-xs text-neutral-600 no-print">
+      {/* Clean Institutional Footer with College Branding & Exam Management System Emblem - explicitly hidden during print/PDF export */}
+      <footer className="border-t border-emerald-200/80 bg-white py-6 mt-12 text-xs text-neutral-600 no-print print-hidden site-footer">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <img
-              src="/src/assets/images/exam_system_logo_1792130817114.jpg"
-              alt="Exam Management System Emblem"
+              src={branding.logoUrl || '/src/assets/images/exam_system_logo_1792130817114.jpg'}
+              alt={`${branding.collegeName} Emblem`}
               referrerPolicy="no-referrer"
+              width={44}
+              height={44}
+              style={{ width: '44px', height: '44px', maxWidth: '44px', maxHeight: '44px', objectFit: 'contain' }}
               className="w-11 h-11 rounded-full object-contain border border-emerald-200 shadow-2xs shrink-0 bg-white"
             />
             <div>

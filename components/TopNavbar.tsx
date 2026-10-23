@@ -62,7 +62,7 @@ export function TopNavbar({ onOpenSimulator, onOpenRegister }: TopNavbarProps) {
   );
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white border-b border-emerald-100 shadow-2xs">
+    <header className="sticky top-0 z-40 w-full bg-white border-b border-emerald-100 shadow-2xs no-print print-hidden top-navbar">
       {/* 3-Zone Top Bar Contract: Brand — Role Nav & Clock — Actions */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
         {/* Zone 1: Brand Wordmark with College Logo & Name */}
@@ -71,6 +71,9 @@ export function TopNavbar({ onOpenSimulator, onOpenRegister }: TopNavbarProps) {
             <img
               src={branding.logoUrl}
               alt="Logo"
+              width={36}
+              height={36}
+              style={{ width: '36px', height: '36px', maxWidth: '36px', maxHeight: '36px', objectFit: 'cover' }}
               className="w-9 h-9 rounded-lg object-cover border border-emerald-200 shadow-2xs shrink-0"
             />
           ) : (

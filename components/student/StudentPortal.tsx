@@ -869,12 +869,15 @@ export function StudentPortal() {
 
             <div className="p-6 space-y-4 text-xs font-sans">
               {/* Official Header with dynamic College Name & Logo */}
-              <div className="flex items-center justify-between pb-4 border-b-2 border-emerald-800 text-left">
+              <div className="flex items-center justify-between pb-4 border-b-2 border-emerald-800 text-left page-break-avoid print-avoid-break">
                 <div className="flex items-center gap-3">
                   {branding.logoUrl ? (
                     <img
                       src={branding.logoUrl}
                       alt="Logo"
+                      width={56}
+                      height={56}
+                      style={{ width: '56px', height: '56px', maxWidth: '56px', maxHeight: '56px', objectFit: 'cover' }}
                       className="w-14 h-14 rounded-lg object-cover border border-emerald-300"
                     />
                   ) : (
@@ -903,7 +906,7 @@ export function StudentPortal() {
               </div>
 
               {/* Student Identification Particulars */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-emerald-50/40 border border-emerald-200 rounded-lg">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-emerald-50/40 border border-emerald-200 rounded-lg page-break-avoid print-avoid-break particulars-strip">
                 <div>
                   <span className="text-neutral-400 block text-[10px] font-semibold">CANDIDATE NAME</span>
                   <span className="font-bold text-neutral-900 text-xs">{currentUser.name}</span>
@@ -951,7 +954,7 @@ export function StudentPortal() {
                           const crs = courses.find((c) => c.id === ds.courseId);
                           const teacher = users.find((u) => u.id === ds.assignedTeacherId);
                           return (
-                            <tr key={ds.id} className="hover:bg-neutral-50">
+                            <tr key={ds.id} className="hover:bg-neutral-50 page-break-avoid print-avoid-break">
                               <td className="p-2.5">
                                 <div className="font-bold font-mono text-neutral-900">{crs?.code}</div>
                                 <div className="text-neutral-600 font-medium text-[10px]">{crs?.title}</div>
@@ -970,7 +973,7 @@ export function StudentPortal() {
               </div>
 
               {/* Strict Examination Code of Conduct */}
-              <div className="p-3 bg-neutral-50 border border-neutral-200 rounded-lg space-y-1 text-[10px] text-neutral-600">
+              <div className="p-3 bg-neutral-50 border border-neutral-200 rounded-lg space-y-1 text-[10px] text-neutral-600 page-break-avoid print-avoid-break">
                 <div className="font-bold text-neutral-800 uppercase tracking-wider text-[9px]">Mandatory Candidate Regulations:</div>
                 <div>1. Candidate must bring this printed Date Sheet along with their verified College Photo Identity Card to every examination.</div>
                 <div>2. Programmable calculators, mobile phones, smartwatches, and unauthorized notes are strictly banned inside examination halls.</div>
@@ -978,7 +981,7 @@ export function StudentPortal() {
               </div>
 
               {/* Signatures & Seal */}
-              <div className="pt-3 border-t border-neutral-200 flex items-center justify-between text-[11px]">
+              <div className="pt-3 border-t border-neutral-200 flex items-center justify-between text-[11px] page-break-avoid print-avoid-break signature-block">
                 <div className="text-neutral-500 font-mono text-[10px]">
                   <div>Security Hash: SHA-256-DS-{currentUser.rollNumber?.slice(-4) || '8842'}</div>
                   <div>Status: Approved &amp; Released by Directorate</div>

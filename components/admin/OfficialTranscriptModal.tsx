@@ -522,13 +522,16 @@ export function OfficialTranscriptModal({
         {/* --- OFFICIAL TRANSCRIPT DOCUMENT BODY (PRINTABLE) --- */}
         <div className="p-6 sm:p-10 space-y-6 text-neutral-900 bg-white font-sans text-xs">
           {/* Institution Header with Emblem and University Seal */}
-          <div className="border-b-2 border-emerald-900 pb-5">
+          <div className="border-b-2 border-emerald-900 pb-5 page-break-avoid print-avoid-break">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 {branding.logoUrl ? (
                   <img
                     src={branding.logoUrl}
                     alt="Emblem"
+                    width={64}
+                    height={64}
+                    style={{ width: '64px', height: '64px', maxWidth: '64px', maxHeight: '64px', objectFit: 'cover' }}
                     className="w-16 h-16 rounded-lg object-cover border border-emerald-300 shadow-xs"
                   />
                 ) : (
@@ -572,7 +575,7 @@ export function OfficialTranscriptModal({
           </div>
 
           {/* Student Profile Particulars */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-emerald-50/40 rounded-xl border border-emerald-200 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-emerald-50/40 rounded-xl border border-emerald-200 text-xs page-break-avoid print-avoid-break particulars-strip">
             <div>
               <span className="text-[10px] uppercase font-bold text-emerald-900 block">Candidate Name</span>
               <strong className="text-neutral-900 text-sm block mt-0.5 font-bold">{currentStudent.name}</strong>
@@ -646,7 +649,7 @@ export function OfficialTranscriptModal({
                       const qp = (res.gradePoint * crHours).toFixed(2);
 
                       return (
-                        <tr key={res.id} className="hover:bg-emerald-50/20">
+                        <tr key={res.id} className="hover:bg-emerald-50/20 page-break-avoid print-avoid-break">
                           <td className="py-2.5 px-3 font-mono font-bold text-neutral-900">
                             {course?.code || 'CRS-001'}
                           </td>
@@ -681,7 +684,7 @@ export function OfficialTranscriptModal({
           </div>
 
           {/* Academic Standing & Cumulative Statistics Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-emerald-900 text-white rounded-xl shadow-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-emerald-900 text-white rounded-xl shadow-xs page-break-avoid print-avoid-break">
             <div>
               <span className="text-[10px] text-emerald-200 uppercase font-semibold block">Total Credits Attempted</span>
               <strong className="text-xl font-mono font-bold block mt-0.5">{totalCreditHours} Cr. Hrs</strong>
@@ -712,7 +715,7 @@ export function OfficialTranscriptModal({
           </div>
 
           {/* Grading Scale Reference & Authenticity Watermark */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-neutral-200 text-[10px] text-neutral-600">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-neutral-200 text-[10px] text-neutral-600 page-break-avoid print-avoid-break">
             <div className="p-2.5 bg-neutral-50 rounded-lg border border-neutral-200 space-y-1">
               <strong className="font-bold text-neutral-800 uppercase block">Institutional Grading Scale Key:</strong>
               <div className="grid grid-cols-4 gap-1 font-mono text-[9px]">
@@ -738,7 +741,7 @@ export function OfficialTranscriptModal({
           </div>
 
           {/* Official Signatures & Verification Stamp */}
-          <div className="pt-8 border-t-2 border-emerald-900 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs relative">
+          <div className="pt-8 border-t-2 border-emerald-900 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs relative page-break-avoid print-avoid-break signature-block">
             {/* Deputy Registrar Signature Block */}
             <div
               onClick={() => setIsEditingSignatories(true)}
@@ -772,6 +775,9 @@ export function OfficialTranscriptModal({
                     src={sealImageUrl || '/src/assets/images/exam_system_logo_1792130817114.jpg'}
                     alt="University Seal"
                     referrerPolicy="no-referrer"
+                    width={56}
+                    height={56}
+                    style={{ width: '56px', height: '56px', maxWidth: '56px', maxHeight: '56px', objectFit: 'contain' }}
                     className="w-14 h-14 rounded-full object-contain"
                   />
                   <div

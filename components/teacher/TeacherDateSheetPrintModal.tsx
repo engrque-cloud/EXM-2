@@ -134,12 +134,15 @@ export function TeacherDateSheetPrintModal({
         {/* Printable Official Document Body */}
         <div className="p-8 space-y-5 text-xs font-sans">
           {/* Institutional Header with dynamic College Name, Subtitle & Logo */}
-          <div className="flex items-center justify-between pb-4 border-b-2 border-emerald-800 text-left">
+          <div className="flex items-center justify-between pb-4 border-b-2 border-emerald-800 text-left page-break-avoid print-avoid-break">
             <div className="flex items-center gap-4">
               <img
                 src={branding.logoUrl || '/exam_system_logo.jpg'}
                 alt="Logo"
                 referrerPolicy="no-referrer"
+                width={64}
+                height={64}
+                style={{ width: '64px', height: '64px', maxWidth: '64px', maxHeight: '64px', objectFit: 'contain' }}
                 className="w-16 h-16 rounded-lg object-contain border border-emerald-300 bg-white"
               />
               <div>
@@ -169,7 +172,7 @@ export function TeacherDateSheetPrintModal({
           </div>
 
           {/* Faculty Identification Particulars */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-emerald-50/50 border border-emerald-200 rounded-lg text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-emerald-50/50 border border-emerald-200 rounded-lg text-xs page-break-avoid print-avoid-break particulars-strip">
             <div>
               <span className="text-neutral-400 block text-[10px] font-semibold">FACULTY NAME</span>
               <span className="font-bold text-neutral-900 text-sm">{currentUser.name}</span>
@@ -223,7 +226,7 @@ export function TeacherDateSheetPrintModal({
                     });
 
                     return (
-                      <tr key={ds.id} className="hover:bg-neutral-50 print-avoid-break">
+                      <tr key={ds.id} className="hover:bg-neutral-50 print-avoid-break page-break-avoid">
                         <td className="p-2.5 text-center font-mono text-neutral-500 font-medium">
                           {index + 1}
                         </td>
@@ -294,7 +297,7 @@ export function TeacherDateSheetPrintModal({
           </div>
 
           {/* Signatures & Seal Section */}
-          <div className="pt-4 border-t-2 border-neutral-200 flex items-center justify-between print-avoid-break">
+          <div className="pt-4 border-t-2 border-neutral-200 flex items-center justify-between print-avoid-break page-break-avoid signature-block">
             {/* Deputy Registrar */}
             <div className="text-left space-y-0.5">
               <div className="h-8 flex items-end">

@@ -103,12 +103,15 @@ export function DashboardPrintHeader({
   };
 
   return (
-    <div className="print-only mb-6 pb-4 border-b-2 border-neutral-800 font-sans">
+    <div className="print-only mb-6 pb-4 border-b-2 border-neutral-800 font-sans print-header page-break-avoid print-avoid-break">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <img
             src={branding.logoUrl || '/exam_system_logo.jpg'}
             alt="Emblem"
+            width={56}
+            height={56}
+            style={{ width: '56px', height: '56px', maxWidth: '56px', maxHeight: '56px', objectFit: 'contain' }}
             className="w-14 h-14 object-contain rounded-md"
           />
           <div>
